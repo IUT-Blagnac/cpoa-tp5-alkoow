@@ -9,7 +9,7 @@ import observer.CourseRecord;
 /**
  * Represents a vector of CourseRecords.
  */
-public class CourseData extends Observable {
+public class CourseData extends Observable<CourseRecord> {
 
 	/**
 	 * Constructs a CourseData object
@@ -40,7 +40,7 @@ public class CourseData extends Observable {
 		}
 		if (!alreadyExists)
 			this.courseData.addElement(courseRecord);
-		this.notifyObservers();
+		this.notifyObservers(courseRecord);
 	}
 
 	/**
@@ -56,10 +56,10 @@ public class CourseData extends Observable {
 			CourseRecord record = courseData.elementAt(i);
 			if (record.getName().equals(subjectName)) {
 				record.setNumOfStudents(numOfStudents);
-				i = courseData.size();
+				this.notifyObservers(record);
+				break;
 			}
 		}
-		this.notifyObservers();
 	}
 
 	/**

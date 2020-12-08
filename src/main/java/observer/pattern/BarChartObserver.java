@@ -15,7 +15,7 @@ import observer.LayoutConstants;
  * pattern.
  */
 @SuppressWarnings("serial")
-public class BarChartObserver extends JPanel implements Observer {
+public class BarChartObserver extends ChartObserver {
 	/**
 	 * Creates a BarChartObserver object
 	 * 
@@ -24,10 +24,10 @@ public class BarChartObserver extends JPanel implements Observer {
 	 */
 	public BarChartObserver(CourseData data) {
 		data.attach(this);
-		this.courseData = data.getUpdate();
+		this.courseRecord = data.getUpdate();
 		this.setPreferredSize(new Dimension(2 * LayoutConstants.xOffset
 				+ (LayoutConstants.barSpacing + LayoutConstants.barWidth)
-				* this.courseData.size(), LayoutConstants.graphHeight + 2
+				* this.courseRecord.size(), LayoutConstants.graphHeight + 2
 				* LayoutConstants.yOffset));
 		this.setBackground(Color.white);
 	}
@@ -40,10 +40,10 @@ public class BarChartObserver extends JPanel implements Observer {
 	 */
 	public void paint(Graphics g) {
 		super.paint(g);
-		LayoutConstants.paintBarChartOutline(g, this.courseData.size());
-		for (int i = 0; i < courseData.size(); i++) {
-			CourseRecord record = (CourseRecord) courseData.elementAt(i);
-			g.setColor(Color.blue);
+		LayoutConstants.paintBarChartOutline(g, this.courseRecord.size());
+		for (int i = 0; i < courseRecord.size(); i++) {
+			CourseRecord record = (CourseRecord) courseRecord.elementAt(i);
+			g.setColor(LayoutConstants.courseColours[i]);
 			g.fillRect(
 					LayoutConstants.xOffset + (i + 1)
 							* LayoutConstants.barSpacing + i
@@ -63,23 +63,4 @@ public class BarChartObserver extends JPanel implements Observer {
 		}
 	}
 
-	/**
-	 * Informs this observer that the observed CourseData object has changed
-	 * 
-	 * @param o
-	 *            the observed CourseData object that has changed
-	 */
-	public void update(Observable o) {
-		CourseData data = (CourseData) o;
-		this.courseData = data.getUpdate();
-
-		this.setPreferredSize(new Dimension(2 * LayoutConstants.xOffset
-				+ (LayoutConstants.barSpacing + LayoutConstants.barWidth)
-				* this.courseData.size(), LayoutConstants.graphHeight + 2
-				* LayoutConstants.yOffset));
-		this.revalidate();
-		this.repaint();
-	}
-
-	private Vector<CourseRecord> courseData;
 }

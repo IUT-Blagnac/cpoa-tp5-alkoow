@@ -5,12 +5,12 @@ import java.util.Vector;
 /**
  * An abstract class for all Observable subjects
  */
-public abstract class Observable {
+public abstract class Observable<K> {
 	/**
 	 * Constructs an Observable object
 	 */
 	public Observable() {
-		this.observers = new Vector<Observer>();
+		this.observers = new Vector<Observer<K>>();
 	}
 
 	/**
@@ -19,7 +19,7 @@ public abstract class Observable {
 	 * @param o
 	 *            the Observer that wishes to attach
 	 */
-	public void attach(Observer o) {
+	public void attach(Observer<K> o) {
 		this.observers.addElement(o);
 	}
 
@@ -29,7 +29,7 @@ public abstract class Observable {
 	 * @param o
 	 *            the Observer that wishes to detach
 	 */
-	public void detach(Observer o) {
+	public void detach(Observer<K> o) {
 		for (int i = 0; i < observers.size(); i++) {
 			if (observers.elementAt(i).equals(o))
 				observers.removeElementAt(i);
@@ -39,10 +39,10 @@ public abstract class Observable {
 	/**
 	 * Notify all Observers that Subject has changed
 	 */
-	public void notifyObservers() {
+	public void notifyObservers(K data) {
 		for (int i = 0; i < observers.size(); i++) {
-			Observer observer = observers.elementAt(i);
-			observer.update(this);
+			Observer<K> observer = observers.elementAt(i);
+			observer.update(this, data);
 		}
 	}
 
@@ -53,5 +53,5 @@ public abstract class Observable {
 	 */
 	public abstract Object getUpdate();
 
-	protected Vector<Observer> observers;
+	protected Vector<Observer<K>> observers;
 }
