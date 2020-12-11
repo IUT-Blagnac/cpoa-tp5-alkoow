@@ -25,7 +25,7 @@ import observer.CourseRecord;
  * pattern to be notified when a new course has been added.
  */
 @SuppressWarnings("serial")
-public class CourseController extends JPanel implements ChangeListener, ActionListener {
+public class CourseController extends JPanel implements Observer, ChangeListener, ActionListener {
 	/**
 	 * Constructs a CourseController object
 	 * 
@@ -44,6 +44,7 @@ public class CourseController extends JPanel implements ChangeListener, ActionLi
 
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.BOTH;
+		courses.attach(this);
 		Vector<CourseRecord> state = courses.getUpdate();
 
 		for (int i = 0; i < state.size(); i++)
@@ -54,37 +55,6 @@ public class CourseController extends JPanel implements ChangeListener, ActionLi
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		JButton button = new JButton("New Courses");
 		button.addActionListener(this);
-		
-		JButton buttonChart = new JButton("Pie Chart");
-		
-		CourseController controller = this;
-		buttonChart.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				JButton button = (JButton)e.getSource();
-				JFrame frame = (JFrame)controller.getRootPane().getParent();
-				ChartObserver graph;
-				
-				if(button.getText().contentEquals("Pie Chart")) {
-					graph = new PieChartObserver(courseData);
-					button.setText("Bar Chart");
-				} else {
-					graph = new BarChartObserver(courseData);
-					button.setText("Pie Chart");
-				}
-				
-				graphPanel .removeAll();
-				
-				graphPanel.add(new JScrollPane(graph,
-						JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-						JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS));
-				
-				frame.revalidate();
-				frame.repaint();
-			}
-		});
 
 		constraints.weightx = 0.5;
 		constraints.weighty = 1.0;
@@ -96,11 +66,6 @@ public class CourseController extends JPanel implements ChangeListener, ActionLi
 		constraints.weighty = 0;
 		constraints.gridy = 1;
 		this.add(button, constraints);
-		
-		constraints.weightx = 0.5;
-		constraints.weighty = 0;
-		constraints.gridy = 2;
-		this.add(buttonChart, constraints);
 	}
 
 	/**
@@ -127,6 +92,19 @@ public class CourseController extends JPanel implements ChangeListener, ActionLi
 		sliders.addElement(slider);
 	}
 
+	/**
+	 * Informs this CourseController that a new course has been added
+	 * 
+	 * @param o
+	 *            the CourseData subject that has changed
+	 */
+	 public void update(Observable o) {
+		CourseData courses = (CourseData) o;
+		Vector<CourseRecord> newCourses = courses.getUpdate();
+		for (int i = sliders.size(); i < newCourses.size(); i++) {
+			this.addCourse((CourseRecord) newCourses.elementAt(i));
+		}
+	} 
 
 	/**
 	 * Manages the creation of a new course. Called when the "New Course" button is pressed.
@@ -166,18 +144,12 @@ public class CourseController extends JPanel implements ChangeListener, ActionLi
 		data.addCourseRecord(new CourseRecord("Biology", 50));
 
 		CourseController controller = new CourseController(data);
-		ChartObserver graph = new BarChartObserver(data);
+		BarChartObserver bar = new BarChartObserver(data);
 
-		graphPanel = new JPanel();
-				
-		JScrollPane panel = new JScrollPane(graph,
-		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-		JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		
-		graphPanel.removeAll();
+		JScrollPane scrollPane = new JScrollPane(bar,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
-		graphPanel.add(panel);
-		
 		JFrame frame = new JFrame("Observer Pattern");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new GridBagLayout());
@@ -194,7 +166,7 @@ public class CourseController extends JPanel implements ChangeListener, ActionLi
 		constraints.weighty = 1.0;
 		constraints.gridx = 1;
 		constraints.gridy = 0;
-		frame.getContentPane().add(graphPanel, constraints);
+		frame.getContentPane().add(scrollPane, constraints);
 		frame.pack();
 		frame.setVisible(true);
 	}
@@ -204,7 +176,4 @@ public class CourseController extends JPanel implements ChangeListener, ActionLi
 	private Vector<JSlider> sliders;
 
 	private JPanel coursePanel;
-	
-	private static JPanel graphPanel;
-	
 }
